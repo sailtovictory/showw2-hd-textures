@@ -1,0 +1,17 @@
+{
+  "template": "template.chn",
+  "work_dir": "C:\\work",
+  "model": "C:\\models\\4x-UltraSharp.pth",
+  "jobs": [
+    {"lane": "alpha",  "folder": "entity\\-human"},
+    {"lane": "opaque", "folder": "entity\\-human"},
+    {"lane": "alpha",  "folder": "entity\\-vehicle"},
+    {"lane": "opaque", "folder": "entity\\-vehicle"},
+    {"lane": "alpha",  "folder": "texture"},
+    {"lane": "opaque", "folder": "texture"},
+    {"lane": "alpha",  "folder": "entity"},
+    {"lane": "opaque", "folder": "entity"},
+    {"lane": "alpha",  "folder": "fx\\_bmp"},
+    {"lane": "opaque", "folder": "fx\\_bmp"}
+  ]
+}

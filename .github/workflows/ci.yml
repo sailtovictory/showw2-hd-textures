@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest
+      - name: Parse-check PowerShell scripts
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $bad = 0
+          foreach ($f in Get-ChildItem scripts\*.ps1) {
+              $tokens = $null; $errs = $null
+              [System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errs) | Out-Null
+              foreach ($e in $errs) { Write-Host "$($f.Name):$($e.Extent.StartLineNumber) $($e.Message)"; $bad++ }
+          }
+          if ($bad) { exit 1 }

@@ -1,0 +1,16 @@
+[project]
+name = "showw2-hd-textures"
+version = "0.1.0"
+description = "Scripts and guide for a 2x AI-upscaled texture pack for Soldiers: Heroes of World War II"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
