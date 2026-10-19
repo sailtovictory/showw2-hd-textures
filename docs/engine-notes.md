@@ -46,8 +46,22 @@ the measured width and height ratio of the first frame it can match.
 
 ### .def
 
-`.def` files point at an `.ebm` with `{Scale 1.0}`. The footprint is fixed, so `.def` files need no edit. This
-was tested on one road stamp (`entity\landscape\stamp\Roads`); **(hypothesis)** it holds for all `.def` files.
+`.def` files hold `{Sprite "x.ebm" ...}` blocks, optionally with `{Scale N}`, `{PreScaleX N}` and `{PreScaleY N}`
+(default scale 1.0).
+
+**Ground decals must be corrected.** When a decal (road, track, crater, stamp) is upscaled 2x and its `.def` is
+left alone, the game draws it **twice as wide**. An early test on one road stamp suggested `.def` files need no
+edit; later checks proved that wrong. **(hypothesis)** The engine draws a decal at *image pixels x scale*, which
+fits what was seen.
+
+`fix_def_scale.py` divides every `Scale`, `PreScaleX` and `PreScaleY` in a sprite block by the upscale ratio, or
+inserts `{Scale 1/ratio}` (e.g. `{Scale 0.5 }`) when the block has none. Run it over the whole `entity` folder,
+not only the TGA batch, because BMP-converted decals have the same problem. Sprites that point at shared images
+that were not upscaled, such as `/properties/shadow/round.ebm`, must keep their scale. The script skips them
+because it finds no upscaled image for them.
+
+`compare_alpha.py` showed the wide roads were not caused by the upscale spreading alpha: coverage and mean
+alpha stayed the same. Same-camera screenshots before and after are the best check.
 
 ### Frame references
 

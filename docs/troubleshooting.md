@@ -79,6 +79,21 @@ that, the two BMP cases were renamed by hand). After chaiNNer, rename them back 
 **Fix:** run `fix_descriptors.py` (without `--no-axis`) and make sure the edited `.ebm` files are in `hd_out`
 when packing.
 
+## Roads, tracks, craters or other ground decals are twice as wide
+
+**Cause:** the decal's image doubled, and its `.def` still uses the old scale. **(hypothesis)** The engine draws
+decals at image pixels x scale.
+
+**Fix:** run `fix_def_scale.py` over the whole `entity` folder (pipeline step 7b) and pack again. Do not limit
+it to the TGA batch, because BMP-converted decals have the same problem.
+
+```powershell
+python scripts\fix_def_scale.py C:\work\resource C:\work\hd_out entity
+```
+
+Alpha spreading was ruled out as the cause: `compare_alpha.py` showed unchanged coverage and mean alpha on
+the affected roads.
+
 ## Some upscaled images look grey or blotchy, or are missing
 
 `find_grey.py --move` moves images where at least 98% of the pixels are grey into `grey_hold`, because these are

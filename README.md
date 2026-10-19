@@ -23,10 +23,10 @@ Copy-Item "C:\Games\Soldiers\resource.pak" "C:\Games\Soldiers\resource.pak.bak" 
 & "C:\Program Files\7-Zip\7z.exe" x "C:\Games\Soldiers\resource.pak" -o"C:\work\resource"
 python scripts\bmp_stage.py C:\work\resource C:\work\stage_alpha C:\work\stage_opaque
 python scripts\find_grey.py C:\work\stage_alpha C:\work\stage_opaque --move C:\work\grey_hold
-# save your chaiNNer template as graphs\local\template.chn (graphs/README.md), copy and edit folders.example.json
-python scripts\make_graphs.py graphs\local\folders.json      # then run each graph in chaiNNer
+python scripts\make_graphs.py graphs\local\folders.json   # needs your template first (graphs/README.md); run each graph in chaiNNer
 .\scripts\unmark-dirs.ps1 -Root C:\work\hd_out
 python scripts\fix_descriptors.py C:\work\resource C:\work\hd_out --dry-run   # then again without --dry-run
+python scripts\fix_def_scale.py C:\work\resource C:\work\hd_out entity        # keeps decals at their original width
 .\scripts\size-report.ps1 -HdOut C:\work\hd_out -OriginalPak "C:\Games\Soldiers\resource.pak.bak"
 .\scripts\touch-and-pack.ps1 -Pak "C:\Games\Soldiers\resource.pak" -HdOut C:\work\hd_out
 ```
@@ -37,8 +37,8 @@ walk you through it. The full guide with expected output is in [docs/pipeline.md
 ## Result
 
 On the test install, the final pack contained every BMP texture plus the road and ground stamps from the
-original TGAs. All were upscaled 2x (soldier skins 64x64 -> 128x128, for example). The pak grew from 0.8 GiB to
-1.97 GiB, and the game worked. Textures are sharper. The look of the game is otherwise
+original TGAs. All were upscaled 2x (soldier skins 64x64 -> 128x128, for example), with the decal scale fix
+applied. The pak grew from 0.8 GiB to 1.97 GiB, and the game worked. Textures are sharper. The look of the game is otherwise
 unchanged.
 
 ## What is in this repository
@@ -50,6 +50,8 @@ unchanged.
 | `scripts/tga_stage.py` | Stages the game's original TGAs, sorted into groups (optional lane) |
 | `scripts/make_graphs.py`, `make_chn.py` | Generate chaiNNer graphs from one template |
 | `scripts/fix_descriptors.py` | Rewrites `.ebm`/`.tex`: BMP->TGA frame names, scaled `Axis` anchors |
+| `scripts/fix_def_scale.py` | Rewrites `.def` scales so upscaled ground decals are not drawn twice as wide |
+| `scripts/compare_alpha.py` | Checks original vs upscaled TGAs (alpha, coverage, brightness) |
 | `scripts/*.ps1` | Pack with size check, rename marked folders, size report, restore backup, guided run |
 | `graphs/` | Example template and folder list |
 | `docs/` | [pipeline](docs/pipeline.md), [engine notes](docs/engine-notes.md), [size limit](docs/size-limit.md), [troubleshooting](docs/troubleshooting.md), [video experiment](docs/video-experiment.md) |

@@ -130,6 +130,22 @@ Expected after all BMP batches (test install):
 About 80 unresolved frames are normal (broken in the original game). `mixed_ratio` should be 0. Details are in
 `descriptor_report.txt`. Edited `.ebm`/`.tex` files are written into `hd_out`. The extracted tree is not touched.
 
+### 7b. Fix the decal scale
+
+Without this step, upscaled ground decals (roads, tracks, craters, stamps) are drawn twice as wide. Run it over
+the whole `entity` folder, dry run first:
+
+```powershell
+python scripts\fix_def_scale.py C:\work\resource C:\work\hd_out entity --dry-run
+python scripts\fix_def_scale.py C:\work\resource C:\work\hd_out entity
+```
+
+The last line looks like `{'files_changed': ..., 'blocks_scaled': ..., 'blocks_added': ..., 'skipped': ...}`.
+`skipped` counts sprites whose image was not upscaled (for example the shared shadow
+`/properties/shadow/round.ebm`). Those must keep their scale. Details are in `def_scale_report.txt`. Edited
+`.def` files go into `hd_out`. The script always starts from the original `.def`, so running it again is safe.
+Run it again whenever the set of images in `hd_out` changes.
+
 ## 8. Check the size
 
 ```powershell
@@ -149,8 +165,18 @@ size. Expected: `Everything is Ok` twice, then `Pak size: ... GiB`. It warns abo
 
 ## 10. Test in game, or undo
 
-Start a mission with infantry, vehicles and ground textures in view. If something looks wrong, see
-[troubleshooting.md](troubleshooting.md). To undo:
+Start a mission with infantry, vehicles, roads and ground textures in view. The best check is a pair of
+screenshots from the same camera position before and after. Roads and other decals should be the same width
+in both.
+
+To check that the upscale did not change how much of a sprite is visible (mean alpha, coverage, brightness),
+run `compare_alpha.py` on a folder. All median changes should be close to x1.00:
+
+```powershell
+python scripts\compare_alpha.py C:\work\resource C:\work\hd_out entity\landscape\stamp\Roads
+```
+
+If something looks wrong, see [troubleshooting.md](troubleshooting.md). To undo:
 
 ```powershell
 .\scripts\restore-backup.ps1 -GameDir "C:\Games\Soldiers"

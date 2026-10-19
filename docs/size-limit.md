@@ -15,7 +15,8 @@ damaged.
 **(hypothesis)** The 2004 engine reads the pak with 32-bit signed file offsets, so it fails once the pak is
 larger than 2 GiB (2,147,483,648 bytes). Only the two sides of the boundary were tested (1.97 works, 2.29 fails).
 
-`touch-and-pack.ps1` warns above 1.95 GiB and fails above 2 GiB.
+**Keep the pak at 1.97 GiB or less**, the largest size known to work. `touch-and-pack.ps1` warns above 1.95 GiB
+and fails above 2 GiB.
 
 ## Rule of thumb
 
@@ -58,8 +59,16 @@ Raw upscaled output by folder on the test install (MB, before packing):
    from `hd_out` do not stay in the pak.
 
 **Never remove only an image and keep its descriptor, or the reverse.** A descriptor that says `Frame "x.tga"`
-needs `x.tga` in the pak. Either move whole folders, or re-run `fix_descriptors.py` on the reduced `hd_out` after
-deleting the descriptors it wrote earlier.
+needs `x.tga` in the pak, and a `.def` with a halved scale needs the 2x image. Either move whole folders
+(with their `.ebm`, `.tex` and `.def` files), or delete the descriptors written earlier and re-run
+`fix_descriptors.py` and `fix_def_scale.py` on the reduced `hd_out`.
+
+## Cheap wins and what to park
+
+- Soldier skins: the 18 skin TGAs in `entity\-human` are tiny (0.86 MB in total), so they cost almost nothing.
+  They are worth including, but the gain is small at normal zoom.
+- Parked on the test install: `interface\*` UI images (layout untested), the remaining flora and building TGAs
+  (size budget) and cutscenes (WMV at 2x gave almost no visible gain).
 
 ## What the working build contained
 
@@ -67,7 +76,8 @@ The final 1.97 GiB build on the test install was:
 
 - all BMP batches (`entity\-human`, `entity\-vehicle`, `texture`, `entity`, `fx\_bmp`), and
 - from the original-TGA batch only the road and ground stamps: `entity\landscape\stamp\Roads` and
-  `entity\landscape\stamp\Grounds`.
+  `entity\landscape\stamp\Grounds`, and
+- the `.def` files corrected by `fix_def_scale.py`, so decals kept their original width.
 
 It left out, for size: the other original-TGA groups, `interface\*` (1,293 TGAs, also untested) and the
 `video\*` TGA sprites.

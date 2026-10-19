@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Run the whole pipeline: stage, hold greyscale, make graphs, (you run chaiNNer), unmark, fix descriptors, pack.
+    Run the whole pipeline: stage, hold greyscale, make graphs, (you run chaiNNer), unmark, fix descriptors and decal scale, pack.
 
 .DESCRIPTION
     Work folder layout (created under -WorkDir):
@@ -179,6 +179,17 @@ if (Step 'descriptors') {
     Write-Host "Check the numbers above and $drep (about 80 unresolved frames are normal: they are in the original game)."
     if (-not (Ask 'Write the edited descriptors into hd_out now?')) { Write-Host 'Stopped. Resume with -StartAt descriptors.'; exit 3 }
     Py (Join-Path $Here 'fix_descriptors.py') $ResourceDir $hd --report $drep
+
+    Header '5b Fix decal scale in .def files (fix_def_scale.py): dry run first'
+    $srep = Join-Path $rep 'def_scale_report.txt'
+    if (Test-Path -LiteralPath (Join-Path $ResourceDir 'entity') -PathType Container) {
+        Py (Join-Path $Here 'fix_def_scale.py') $ResourceDir $hd entity --dry-run --report $srep
+        Write-Host "Skipped sprites (listed in $srep) point at images that were not upscaled; they keep their scale."
+        if (-not (Ask 'Write the edited .def files into hd_out now?')) { Write-Host 'Stopped. Resume with -StartAt descriptors.'; exit 3 }
+        Py (Join-Path $Here 'fix_def_scale.py') $ResourceDir $hd entity --report $srep
+    } else {
+        Write-Host 'No entity folder in the extracted tree: nothing to do.'
+    }
 }
 
 # --- 6. pack -------------------------------------------------------------------------------------
